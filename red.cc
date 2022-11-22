@@ -27,9 +27,10 @@ void rgb_to_neon(const uint8_t* rgb, uint8_t* rgb_d, int wight, int height, int 
     num_pixels /= 8;
     // Duplicate the weight 8 times.
     //uint8x4_t w_r = vdup_n_u8(255);
-    uint8x8_t w_r = {255,0,0,0,0,0,0,0};
+    uint8x8_t w_r = vdup_n_u8(255);
     uint8x8_t w_g = vdup_n_u8(0);
     uint8x8_t w_b = vdup_n_u8(0);
+    int a = 0;
     auto t1_neon = chrono::high_resolution_clock::now();
     for (int i = 1; i <= num_pixels; ++i, rgb += 8 * 3, rgb_d += 8 * 3) {
         // Load 8 pixels into 3 64-bit registers, split by channel.
@@ -38,19 +39,20 @@ void rgb_to_neon(const uint8_t* rgb, uint8_t* rgb_d, int wight, int height, int 
         uint8x8x2_t vdatar;
         uint8x8x2_t vdatag;
         uint8x8x2_t vdatab;
-        if((i/wight)%2!=0){
-            vdatar.val[0] = w_r;
-            vdatag = vtrn_u8(src.val[1], w_g);
-            vdatab = vtrn_u8(src.val[2], w_b);
+        a+=8;
+        if((a/wight)%2!=0){
+            vdatar = vzip_u8(src.val[0], w_r);
+            vdatag = vzip_u8(src.val[1], w_g);
+            vdatab = vzip_u8(src.val[2], w_b);
         }else{
-            vdatar = vtrn_u8(w_r, src.val[0]);
-            vdatag = vtrn_u8(w_g, src.val[1]);
-            vdatab = vtrn_u8(w_b, src.val[2]);
+            vdatar = vzip_u8(w_r, src.val[0]);
+            vdatag = vzip_u8(w_g, src.val[1]);
+            vdatab = vzip_u8(w_b, src.val[2]);
         }
 
-        src.val[2] = vdatar.val[0];
-        src.val[1] = vdatag.val[0];
-        src.val[0] = vdatab.val[0];
+        src.val[2] = vdatar.val[1];
+        src.val[1] = vdatag.val[1];
+        src.val[0] = vdatab.val[1];
         vst3_u8(rgb_d, src);
     }
 
