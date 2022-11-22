@@ -17,3 +17,4 @@ red.cc √
 
 #// trn_1: 0  8  2  10  4  12  6  14  1  9  3  11  5  13  7  15
 
+![image](https://user-images.githubusercontent.com/20153965/203334043-38936703-6d8f-4dd8-b92d-a75a6856262c.png)
